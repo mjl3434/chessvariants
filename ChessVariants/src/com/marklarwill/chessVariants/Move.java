@@ -4,36 +4,6 @@ import com.marklarwill.chessVariants.ChessGameModel.Piece;
 
 public class Move {
 
-	// NEW MOVE BELOW
-	
-	// Notes for re-factoring
-	// Need to do two methods:
-	//public boolean isValidMove(int srcFile, int srcRank, int dstFile, int dstRank) {
-	//public boolean makeMove(int srcFile, int srcRank, int dstFile, int dstRank) {
-	//
-	// Valid moves are dependent on:
-	//     Game state.
-	//         king in check after move?
-	//         can piece move like that?
-	//     Game state belongs to what? An instance of a game right? Not a board, or collection of squares.
-	//     So what does game state consist of?
-	//         A list of moves
-	//         All captured pieces
-	//         All remaining pieces
-	//
-	// 2 possible approaches for model:
-	// A) makeMove does no validation, simply does what it is told, up to class user to call isValidMove
-	// B) makeMove does validation, user is not guarnteed success when a move is made
-	// Do we want to make the controller do the logic of validating a move? Or is that a model responsiblity?
-	// Should making moves always succeed? Do we value determistism?
-	// The model can encapsulate move validation at the expense of determinsm.
-	// We have to make sure the user doesn't make stupid moves ANYWAY as part of the view / controller right?
-	// What does the view do? drag & drop? coordinates? tranlate real x,y to rank and file?
-	//
-	// "playerInput"
-	
-	
-	// OLD MOVE BELOW
 	Piece pieceMoved;
     Square sourceSquare;
     Piece pieceCaptured;
@@ -127,18 +97,5 @@ public class Move {
     	
     	return false;
  	}
-    
-    /*
-    Move(Piece pieceMoved, Square sourceSquare, Square destinationSquare,
-       	 boolean queensideCastle, boolean kingsideCastle) {
-           
-           this.pieceMoved = pieceMoved;
-           this.sourceSquare = sourceSquare;
-           this.pieceCaptured = null;
-           this.destinationSquare = destinationSquare;
-           this.queensideCastle = queensideCastle;
-           this.kingsideCastle = kingsideCastle;
-    }
-    */
 }
 

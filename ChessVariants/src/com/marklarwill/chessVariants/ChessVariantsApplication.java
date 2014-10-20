@@ -6,15 +6,19 @@ public class ChessVariantsApplication {
 		ChessGameModel chessGameModel = new ChessGameModel();
 		ControllerInterface controller = new ChessGameController(chessGameModel);
 		
+		/*
 		while(true) {
 			System.out.print(".");
 			try {
+				
+				// Well this is obviously a stupid hack...
 				Thread.sleep(10000000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		*/
     }
 
 }

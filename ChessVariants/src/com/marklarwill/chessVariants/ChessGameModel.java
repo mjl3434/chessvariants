@@ -306,7 +306,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     				Move nextMove = possibleMoves.next();
     				
     				// If the king is not in check after the move, then we found a legal move
-    		    	if (!kingInCheckAfterMove(nextMove.pieceMoved, nextMove.pieceMoved,
+    		    	if (!kingInCheckAfterMove(nextMove.pieceMoved, nextMove.pieceCaptured,
     		    			                  nextMove.sourceSquare, nextMove.destinationSquare, 
     		    			                  white, black)) {
     		    		legalMove = true;
@@ -874,56 +874,56 @@ public class ChessGameModel implements ChessGameModelInterface {
     		int rank = square.getRank();
 
     		// Right one, Up two
-    		if (square.getFile() + 1 <= 7 && square.getRank() + 2 <= 7) {
+    		if (file + 1 <= 7 && rank + 2 <= 7) {
     			Piece piece = chessBoard.getPieceAt(file+1, rank+2);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file+1, rank+2)));
     		}
  
     		// Right two, up one
-    		if (square.getFile() + 2 <= 7 && square.getRank() + 1 <= 7) {
+    		if (file + 2 <= 7 && rank + 1 <= 7) {
     			Piece piece = chessBoard.getPieceAt(file+2, rank+1);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file+2, rank+1)));
     		}
     		
     		// Right two, down one
-    		if (square.getFile() + 2 <= 7 && square.getRank() - 1 >= 0) {
+    		if (file + 2 <= 7 && rank - 1 >= 0) {
     			Piece piece = chessBoard.getPieceAt(file+2, rank-1);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file+2, rank-1)));
     		}
     		
     		// Right one, down two
-    		if (square.getFile() + 1 <= 7 && square.getRank() - 2 >= 0) {
+    		if (file + 1 <= 7 && rank - 2 >= 0) {
     			Piece piece = chessBoard.getPieceAt(file+1, rank-2);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file+1, rank-2)));
     		}
     		
     		// Left one, down two
-    		if (square.getFile() - 1 >= 0 && square.getRank() - 2 >= 0) {
+    		if (file - 1 >= 0 && rank - 2 >= 0) {
     			Piece piece = chessBoard.getPieceAt(file-1, rank-2);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file-1, rank-2)));
     		}
     		
     		// Left two, down one
-    		if (square.getFile() - 2 >= 0 && square.getRank() - 1 >= 0) {
+    		if (file - 2 >= 0 && rank - 1 >= 0) {
     			Piece piece = chessBoard.getPieceAt(file-2, rank-1);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file-2, rank-1)));
     		}
     		
     		// Left two, up one
-    		if (square.getFile() - 2 >= 0 && square.getRank() + 1 <= 7) {
+    		if (file - 2 >= 0 && rank + 1 <= 7) {
     			Piece piece = chessBoard.getPieceAt(file-2, rank+1);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file-2, rank+1)));
     		}
     		
     		// Left one, up two
-    		if (square.getFile() - 1 >= 0 && square.getRank() + 2 <= 7) {
+    		if (file - 1 >= 0 && rank + 2 <= 7) {
     			Piece piece = chessBoard.getPieceAt(file-1, rank+2);
     			if (piece == null || piece.color != this.color)
     				moves.add(new Move(this, square, piece, chessBoard.getSquareAt(file-1, rank+2)));
