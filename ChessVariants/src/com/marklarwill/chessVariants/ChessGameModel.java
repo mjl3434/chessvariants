@@ -152,7 +152,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 		
 		// Make the move
 		capturedPiece = chessBoard.doMove(move);
-		updateConvienceVariables(move);
+		updateGameState(move);
 		movesList.add(move);
 		
 		// If a piece was captured move it to a different list
@@ -616,7 +616,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	return false;
     }
     
-    private void updateConvienceVariables(Move move) {
+    private void updateGameState(Move move) {
     	
 		int colorOfMover = move.pieceMoved.getColor();
 		int colorOfOpponent = (colorOfMover == white) ? black : white;
@@ -626,12 +626,22 @@ public class ChessGameModel implements ChessGameModelInterface {
 		int rankOfDestination = move.destinationSquare.getRank();
 		int fileOfDestination = move.destinationSquare.getFile();
 		
-		// First update whiteCheck and blackCheck
-		if (squareIsUnderAttackBy(chessBoard.getKingLocation(colorOfOpponent), colorOfMover)) {
-				if (colorOfOpponent == white)
-					whiteCheck = true;
-				else
-					blackCheck = true;
+		// Check to see if we put the opponent in check (or not).
+		if (colorOfMover == white) {
+			if (squareIsUnderAttackBy(chessBoard.getKingLocation(black), white)) {
+				blackCheck = true;
+			}
+			else {
+				blackCheck = false;
+			}
+		}
+		else {
+			if (squareIsUnderAttackBy(chessBoard.getKingLocation(white), black)) {
+				whiteCheck = true;
+			}
+			else {
+				whiteCheck = false;
+			}
 		}
 		
 		// Check for king moving & castling
@@ -1133,22 +1143,26 @@ public class ChessGameModel implements ChessGameModelInterface {
 		largerRank = Math.max(srcRank, dstRank);
 		smallerRank = (largerRank == srcRank) ? dstRank : srcRank;
 		largerFile = Math.max(srcFile, dstFile);
-		smallerFile = (largerRank == srcFile) ? dstFile : srcFile;
+		smallerFile = (largerFile == srcFile) ? dstFile : srcFile;
 
+		// Check the squares in the middle of the diagonal in the +x +y direction
 		if ((srcFile < dstFile && srcRank < dstRank) ||
 			(srcFile > dstFile && srcRank > dstRank)) {
 
-			for (int x = smallerFile+1, y = smallerRank+1; x < largerFile-1; x++, y++) {
+			// It is okay if the 
+			for (int x = smallerFile+1, y = smallerRank+1; x < largerFile; x++, y++) {
 				if (chessBoard.getPieceAt(x, y) != null)
 					return false;
 			}
 			return true;
 		}
 
+		// If moving along the "\" diagonal
 		if ((srcFile > dstFile && srcRank < dstRank) ||
 			(srcFile < dstFile && srcRank > dstRank)) {
 
-			for (int x = smallerFile+1, y = largerRank-1; x < largerFile-1; x++, y--) {
+			// Check the squares in the middle of the diagonal in the +x -y direction 
+			for (int x = smallerFile+1, y = largerRank-1; x < largerFile; x++, y--) {
 				if (chessBoard.getPieceAt(x, y) != null)
 					return false;
 			}
@@ -1384,6 +1398,12 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private boolean kingsideCastleIsLegal(int playerColor) {
 		
+		// FIXME: / Note:
+		// This code relies on "whiteCheck" and "blackCheck" game state variables, this is an optimization
+		// that takes advantage of the fact that whether or not a king is in check, is calculated after
+		// a move has been made. If future code gets re-factored then it might be wise just to bite the
+		// bullet and manually calculate check here.
+		
 		if (playerColor == white) {
 			// Kingside-castle White
 			if (whiteCheck == false &&											// White's king is not in check
@@ -1413,6 +1433,12 @@ public class ChessGameModel implements ChessGameModelInterface {
 	}
 	
 	private boolean queensideCastleIsLegal(int playerColor) {
+		
+		// FIXME: / Note:
+		// This code relies on "whiteCheck" and "blackCheck" game state variables, this is an optimization
+		// that takes advantage of the fact that whether or not a king is in check, is calculated after
+		// a move has been made. If future code gets re-factored then it might be wise just to bite the
+		// bullet and manually calculate check here.
 		
 		if (playerColor == white) {
 			// Queenside-castle White

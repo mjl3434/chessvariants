@@ -23,6 +23,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.marklarwill.chessVariants.ChessGameModel.Piece;
@@ -42,20 +43,20 @@ public class ChessGameView implements MouseListener,
 	static final int G = 6;
 	static final int H = 7;
 	
-	ChessGameModelInterface chessGameModel;
-	ControllerInterface chessGameController;
-	JLayeredPane layeredPane = new JLayeredPane();
+	private ChessGameModelInterface chessGameModel;
+	private ControllerInterface chessGameController;
+	private ChessVariantsView chessVariantsView;
+
+    private Color darkSquare = Color.gray;
+    private Color lightSquare = Color.white;
 	JPanel chessBoardPanel;
-	JFrame frame;
-    Color darkSquare = Color.gray;
-    Color lightSquare = Color.white;
-    Dimension boardSize = new Dimension(600, 600);
     ViewSquare sourceSquare = new ViewSquare(0, 0);
     ViewPiece draggedPiece;
     int xAdjustment;
     int yAdjustment;
     Point parentLocation;
 	
+    /*
 	public ChessGameView(ControllerInterface controller, ChessGameModelInterface model) {
 		
 		chessGameController = controller;
@@ -64,99 +65,48 @@ public class ChessGameView implements MouseListener,
 		model.registerObserver((CheckmateObserver)this);
 		model.registerObserver((StalemateObserver)this);
 	}
+	*/
+	
+	public ChessGameView(ChessGameModelInterface model, ChessVariantsView view, ControllerInterface controller) {
+		
+		// Does the decorator make sense here???
+		
+		chessGameModel = model;
+		chessVariantsView = view;
+		chessGameController = controller;
+		
+		// The View and the Model should be totally independent of each other
+		// however our implementation still requires us to register and 
+		// unregister for events. This should be the only time we reference
+		// the model directly.
+		//chessGameModel.registerObserver((PieceLocationsObserver)this);
+		//chessGameModel.registerObserver((CheckmateObserver)this);
+		//chessGameModel.registerObserver((StalemateObserver)this);
+		
+        chessBoardPanel = new JPanel();
+        chessBoardPanel.setLayout(new GridLayout(8, 8));
+        chessBoardPanel.setPreferredSize(chessVariantsView.boardSize);
+        chessBoardPanel.setBounds(0, 0, chessVariantsView.boardSize.width, chessVariantsView.boardSize.height);
+        
+        chessVariantsView.layeredPane.add(chessBoardPanel, JLayeredPane.DEFAULT_LAYER);
+        chessVariantsView.layeredPane.addMouseListener(this);
+        chessVariantsView.layeredPane.addMouseMotionListener(this);
+        
+        // The squares themselves are JPanels
+        for (int y = 7; y >= 0; y--) {
+            for (int x = 0; x < 8; x++) {
+            	ViewSquare square = new ViewSquare(new BorderLayout(), x, y);
+                square.setBackground((x + y) % 2 == 1 ? lightSquare : darkSquare);
+                chessBoardPanel.add(square);
+            }
+        }
+        
+        // Load all the chess pieces, and add them to the board
+        addPiecesToBoard();
+        
+        chessVariantsView.frame.pack();
+	}
 
-	private void createAndShowGUI()	{
-		
-		// Create the object which all other objects go inside of
-		frame = new JFrame();
-		
-		// Add everything inside of it
-		addComponentsToPane(frame.getContentPane());
-		
-        // Display the window.
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
-	
-	private void addComponentsToPane(Container pane) {
-		
-		// Create an empty Menu Bar
-		JMenuBar menubar = new JMenuBar();
-		
-		// Add: File Menu
-		JMenu file = new JMenu("File");
-		file.setMnemonic(KeyEvent.VK_F);
-		
-		// File > Save game
-		JMenuItem saveGame = new JMenuItem("Save game");
-		saveGame.setMnemonic(KeyEvent.VK_S);
-		saveGame.setToolTipText("Save the current game");
-		file.add(saveGame);
-		saveGame.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveGame();
-			}
-		});
-		
-		// File > Load saved game
-		JMenuItem loadGame = new JMenuItem("Load saved game");
-		loadGame.setMnemonic(KeyEvent.VK_L);
-		loadGame.setToolTipText("Load a saved game");
-		file.add(loadGame);
-		loadGame.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadGame();
-			}
-		});
-		
-		// Add: File > Exit
-		JMenuItem exit = new JMenuItem("Exit");
-		exit.setMnemonic(KeyEvent.VK_X);
-		exit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				System.exit(0);
-			}
-		});
-		file.add(exit);
-		
-		// Add: Game Menu
-		JMenu game = new JMenu("Game");
-		game.setMnemonic(KeyEvent.VK_G);
-		
-		// Add: Game > New Game
-		JMenuItem newOnePlayerGame = new JMenuItem("One Player Game");
-		newOnePlayerGame.setMnemonic(KeyEvent.VK_O);
-		newOnePlayerGame.setToolTipText("Start a new chess game vs. a computer opponent.");
-		game.add(newOnePlayerGame);
-		newOnePlayerGame.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				startNewOnePlayerGame();
-			}
-		});
-		
-		JMenuItem newTwoPlayerGame = new JMenuItem("Two Player Game");
-		newTwoPlayerGame.setMnemonic(KeyEvent.VK_T);
-		newTwoPlayerGame.setToolTipText("Start a new chess game with two human players.");
-		game.add(newTwoPlayerGame);
-		newTwoPlayerGame.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				startNewTwoPlayerGame();
-			}
-		});
-		
-		// Fill empty Menu Bar
-		menubar.add(file);
-		menubar.add(game);
-		
-		// Add the Menu Bar to the top-center section
-		pane.add(menubar, BorderLayout.PAGE_START);
-		
-		// The layered pane holds the board, but add it now so that our app looks good
-		layeredPane.setPreferredSize(boardSize);
-		frame.add(layeredPane);
-	}
-	
 	private void addPiecesToBoard() {
 		
     	ImageIcon blackPawn = new ImageIcon(ChessGameView.class.getResource("resources/images/BP.png"));
@@ -175,44 +125,38 @@ public class ChessGameView implements MouseListener,
         // The pieces on the other hand are JLabels, put in the chessBoardViewView JPanels
         int squareIndex = 0;
         
+        // A8
         JLabel piece = new ViewPiece(blackRook, ChessGameModel.rook, ChessGameModel.black);
         JPanel panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        
+        // B8
         piece = new ViewPiece(blackKnight, ChessGameModel.knight, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[B][8]
-        
+        // C8
         piece = new ViewPiece(blackBishop, ChessGameModel.bishop, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[C][8]
-        
+        // D8
         piece = new ViewPiece(blackQueen, ChessGameModel.queen, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[D][8]
-        
+        // E8
         piece = new ViewPiece(blackKing, ChessGameModel.king, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[E][8]
-        
+        // F8
         piece = new ViewPiece(blackBishop, ChessGameModel.bishop, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[F][8]
-        
+        // G8
         piece = new ViewPiece(blackKnight, ChessGameModel.knight, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[G][8]
-        
+        // H8
         piece = new ViewPiece(blackRook, ChessGameModel.rook, ChessGameModel.black);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[H][8]
         
         for (int i = 0; i < 8; i++) {
         	piece = new ViewPiece(blackPawn, ChessGameModel.pawn, ChessGameModel.black);
@@ -224,81 +168,69 @@ public class ChessGameView implements MouseListener,
         squareIndex = 8*6;
         
         for(int i = 0; i < 8; i++) {
+        	// [i]2
         	piece = new ViewPiece(whitePawn, ChessGameModel.pawn, ChessGameModel.white);
         	panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         	panel.add(piece);
-        	//[i][2]
         }
         
+        // A1
         piece = new ViewPiece(whiteRook, ChessGameModel.rook, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[A][1]
-        
+        // B1
         piece = new ViewPiece(whiteKnight, ChessGameModel.knight, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[B][1]
-        
+        // C1
         piece = new ViewPiece(whiteBishop, ChessGameModel.bishop, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[C][1]
-        
+        // D1
         piece = new ViewPiece(whiteQueen, ChessGameModel.queen, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[D][1]
-        
+        // E1
         piece = new ViewPiece(whiteKing, ChessGameModel.king, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[E][1]
-        
+        // F1
         piece = new ViewPiece(whiteBishop, ChessGameModel.bishop, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[F][1]
-        
+        // G1
         piece = new ViewPiece(whiteKnight, ChessGameModel.knight, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[G][1]
-        
+        // H1
         piece = new ViewPiece(whiteRook, ChessGameModel.rook, ChessGameModel.white);
         panel = (JPanel)chessBoardPanel.getComponent(squareIndex++);
         panel.add(piece);
-        //[H][1]
+
 	}
 	
 	@Override
 	public void updatePieceLocations() {
+		
 		List<Piece> piecesOnBoard = chessGameModel.getPieceLocations();
 		// Code to draw the pieces
 	}
 
 	@Override
 	public void updateStalemate() {
-		// TODO Auto-generated method stub
-		
+
+		System.out.println("Game Over: Stalemate.");
+		JOptionPane.showMessageDialog(chessVariantsView.frame, "Game Over: Stalemate.");
 	}
 
 	@Override
 	public void updateCheckmate() {
-		// TODO Auto-generated method stub
+
+		System.out.println("Game Over: Checkmate.");
 		
+		// Create a popup telling the user the game is over
+		JOptionPane.showMessageDialog(chessVariantsView.frame, "Game Over: Checkmate.");
 	}
-
-	 public void createView() {
-
-
-		/* Schedule UI updates for the Event Dispatch Thread */
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				createAndShowGUI();
-			}
-		});
-	 }
 
 	@Override
 	public void mouseDragged(MouseEvent me) {
@@ -319,10 +251,6 @@ public class ChessGameView implements MouseListener,
     	// Get the origin of the square under where the user clicked
     	draggedPiece = null;
         Component c =  chessBoardPanel.findComponentAt(x, y);
-
-        // If we found a JPanel then it's an empty square w/o any piece
-        //if (c instanceof JPanel)
-        //	return;
         
         if (!(c instanceof ViewPiece))
         	return;
@@ -340,14 +268,14 @@ public class ChessGameView implements MouseListener,
         draggedPiece = (ViewPiece)c;
         draggedPiece.setLocation(x + xAdjustment, y + yAdjustment);
 
-        layeredPane.add(draggedPiece, JLayeredPane.DRAG_LAYER);
-        layeredPane.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));		
+        chessVariantsView.layeredPane.add(draggedPiece, JLayeredPane.DRAG_LAYER);
+        chessVariantsView.layeredPane.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		
-		layeredPane.setCursor(null);
+		chessVariantsView.layeredPane.setCursor(null);
 
         if (draggedPiece == null) return;
         
@@ -355,7 +283,7 @@ public class ChessGameView implements MouseListener,
         int y = e.getY();
 
         draggedPiece.setVisible(false);
-        layeredPane.remove(draggedPiece);
+        chessVariantsView.layeredPane.remove(draggedPiece);
         draggedPiece.setVisible(true);
 
         // Find the components at the source, and destination of the drag & drop
@@ -365,7 +293,7 @@ public class ChessGameView implements MouseListener,
         Container dstSquare = (d instanceof ViewPiece) ? d.getParent() : (Container)d;
 
          // If the destination is outside of the board
-        if (x > layeredPane.getWidth() || x < 0 || y > layeredPane.getHeight() || y < 0) {
+        if (x > chessVariantsView.layeredPane.getWidth() || x < 0 || y > chessVariantsView.layeredPane.getHeight() || y < 0) {
         	
         	// Then we should reject the player input and do nothing
             srcSquare.add(draggedPiece);
@@ -380,7 +308,7 @@ public class ChessGameView implements MouseListener,
         // Attempt to make the move with our model
         boolean validMove = false;
         PlayerInput pi = new PlayerInput(sourceSquare.getFile(), sourceSquare.getRank(), dstFile, dstRank);
-        validMove = chessGameModel.makeMove(pi);
+        validMove = chessGameController.attemptMove(pi);
         
         if (validMove) {
         	
@@ -409,50 +337,4 @@ public class ChessGameView implements MouseListener,
 
 	@Override
 	public void mouseExited(MouseEvent arg0) { }
-	
-	private void saveGame() {
-		System.out.println("User requested save game (not yet implemented)");
-	}
-	
-	private void loadGame() {
-		System.out.println("User requested load game (not yet implemented)");
-	}
-	
-	private void startNewOnePlayerGame() {
-		System.out.println("User requested one player chess game");
-		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
-		
-        chessBoardPanel = new JPanel();
-        chessBoardPanel.setLayout(new GridLayout(8, 8));
-        chessBoardPanel.setPreferredSize(boardSize);
-        chessBoardPanel.setBounds(0, 0, boardSize.width, boardSize.height);
-        
-        layeredPane.add(chessBoardPanel, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.addMouseListener(this);
-        layeredPane.addMouseMotionListener(this);
-        
-        // The squares themselves are JPanels
-        for (int y = 7; y >= 0; y--) {
-            for (int x = 0; x < 8; x++) {
-            	ViewSquare square = new ViewSquare(new BorderLayout(), x, y);
-                square.setBackground((x + y) % 2 == 1 ? lightSquare : darkSquare);
-                chessBoardPanel.add(square);
-            }
-        }
-        
-        // Load all the chess pieces, and add them to the board
-        addPiecesToBoard();
-        
-		frame.pack();
-	}
-	
-	private void startNewTwoPlayerGame() {
-		System.out.println("User requested two player chess game");
-		
-		//model.startNewGame(model.chessGameType, 2);
-		//myframe.add(model.game);
-		//myframe.pack();
-	}
 }
