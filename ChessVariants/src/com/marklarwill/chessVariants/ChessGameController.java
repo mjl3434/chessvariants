@@ -43,7 +43,7 @@ public class ChessGameController implements ControllerInterface {
 		return chessGameModel;
 	}
 	
-	public ChessGameModelInterface createOnelayerChessGame() {
+	public ChessGameModelInterface createOnePlayerChessGame() {
 		
 		chessGameModel = new ChessGameModel();
 		chessGameView = new ChessGameView(chessGameModel, chessVariantsView, this);

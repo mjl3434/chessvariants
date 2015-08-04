@@ -8,5 +8,5 @@ public interface ControllerInterface {
 
 	ChessGameModelInterface createTwoPlayerChessGame();
 	
-	ChessGameModelInterface createOnelayerChessGame();
+	ChessGameModelInterface createOnePlayerChessGame();
 }
