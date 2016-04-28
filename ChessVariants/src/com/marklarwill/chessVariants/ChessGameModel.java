@@ -203,9 +203,17 @@ public class ChessGameModel implements ChessGameModelInterface {
     		// - The 50 move rule
     		// - Threefold repetition 
 
-    		// FIXME: Check for 50 move rule
-
+    		// Check for 50 move rule
+            if (halfMoveClock - lastPawnMove >= 100 && halfMoveClock - lastPieceCaptured >= 100) {
+    			notifyStalemateObservers();
+        		System.out.println("Stalemate by 50 move rule.");
+            }
+                    
     		// FIXME: Check for 3-fold repitition
+                // make data structure with: FEN, en-passant
+                // Position is same
+                // En-passant rights are same
+                // Castling is same
     	}
 		
 
@@ -678,12 +686,14 @@ public class ChessGameModel implements ChessGameModelInterface {
     		if (typeOfPieceMoved == king) {
     			
     			whiteKingMoved = true;
-    			
+    		
+                // White castled queenside
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 0 &&
     			    fileOfDestination == 2 && rankOfDestination == 0) {
     				whiteQueensideRookMoved = true;
     			}
-    			
+    		
+                // White castled kingside
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 0 &&
     				fileOfDestination == 6 && rankOfDestination == 0) {
     				whiteKingsideRookMoved = true;
@@ -701,12 +711,14 @@ public class ChessGameModel implements ChessGameModelInterface {
 
     		if (typeOfPieceMoved == king) {
     			blackKingMoved = true;
-    			
+    		
+                // Black castled queenside    
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 7 &&
         			fileOfDestination == 2 && rankOfDestination == 7) {
     				blackQueensideRookMoved = true;
         		}
-        			
+        		
+                // Black castled kingside    
         		if (fileOfPieceMoved == 4 && rankOfPieceMoved == 7 &&
         			fileOfDestination == 6 && rankOfDestination == 7) {
         			blackKingsideRookMoved = true;
