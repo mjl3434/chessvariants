@@ -24,13 +24,9 @@ public class ChessGameModel implements ChessGameModelInterface {
 	ArrayList<PieceLocationsObserver> pieceLocationsObservers = new ArrayList<PieceLocationsObserver>();
 	ArrayList<CheckmateObserver> checkmateObservers = new ArrayList<CheckmateObserver>();
 	ArrayList<StalemateObserver> stalemateObservers = new ArrayList<StalemateObserver>();
-    private int whitePlayer;
-    private int blackPlayer;
     private int turn;							// Used to tell who's turn it is white or black
     private boolean whiteCheck;					// FIXME: This is used to see of castling is legal... do we update this always?
     private boolean blackCheck;					// -> updateConvienceVariables
-    private boolean checkmate;
-    private boolean stalemate;
     private boolean whiteKingMoved;
     private boolean whiteQueensideRookMoved;
 	private boolean whiteKingsideRookMoved;
@@ -54,8 +50,6 @@ public class ChessGameModel implements ChessGameModelInterface {
         capturedBlackPieces = new ArrayList<Piece>(16);
       
         turn = white;
-        checkmate = false;
-        stalemate = false;
         whiteCheck = false;
         blackCheck = false;
         whiteKingMoved = false;
@@ -152,6 +146,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 		
 		// Make the move
 		capturedPiece = chessBoard.doMove(move);
+		chessBoard.generateFen();
 		updateGameState(move);
 		movesList.add(move);
 		

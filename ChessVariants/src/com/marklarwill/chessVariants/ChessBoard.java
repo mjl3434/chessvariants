@@ -4,9 +4,9 @@ import com.marklarwill.chessVariants.ChessGameModel.Piece;
 
 public class ChessBoard {
 
-	private Square[][] board = new Square[8][8];
-    private Square whiteKingLocation;
-    private Square blackKingLocation;
+	public Square[][] board = new Square[8][8];
+    public Square whiteKingLocation;
+    public Square blackKingLocation;
         
     ChessBoard() {
          
@@ -92,6 +92,20 @@ public class ChessBoard {
     	return pieceCaptured;
     }
 
+    public String generateFen() {
+    	String FEN = "";
+    	int blankSquares = 0;
+    	
+    	// Start from the 8th rank and descend to the 1st rank
+    	for (int rank = 7; rank > 0; rank--) {
+    		// And follow the files left to right
+    		for (int file = 0; file < 8; file++) {
+    			
+    		}
+    	}
+    	
+    	return FEN;
+    }
     
     // FIXME: Ideally we should have a list of moves, we should be able to 
     // get the last move from there.
