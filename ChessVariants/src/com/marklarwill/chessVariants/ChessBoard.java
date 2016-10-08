@@ -153,6 +153,7 @@ public class ChessBoard {
     	
     	// Update position of kings if relevant
     	// FIXME: Not really the board's responsibility
+        // game state should be stored in the model, and done/undone in the model
     	if (pieceMoved.getType() == ChessGameModel.king) {
     		
     		if (pieceMoved.getColor() == ChessGameModel.white)

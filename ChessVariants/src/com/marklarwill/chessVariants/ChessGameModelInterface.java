@@ -6,6 +6,9 @@ import com.marklarwill.chessVariants.ChessGameModel.Piece;
 
 public interface ChessGameModelInterface {
 	
+	int onePlayerGame = 1;
+	int twoPlayerGame = 2;
+	
 	boolean makeMove(PlayerInput pi);
 	
 	List<Piece> getPieceLocations();

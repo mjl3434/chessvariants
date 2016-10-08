@@ -33,6 +33,9 @@ public class ChessGameModel implements ChessGameModelInterface {
     private boolean blackKingMoved;
     private boolean blackQueensideRookMoved;
     private boolean blackKingsideRookMoved;
+    private int whitePlayerType;
+    private int blackPlayerType;
+    private int halfMoveClock;
     private List<Move> movesList;
     private List<Piece> whitePieces;
     private List<Piece> blackPieces;
@@ -40,7 +43,11 @@ public class ChessGameModel implements ChessGameModelInterface {
     private List<Piece> capturedBlackPieces;
     private ChessBoard chessBoard;
 
-	public ChessGameModel() {
+    // This data is required to calculate the 50 move rule
+    private int lastPawnMove;
+    private int lastPieceCaptured;
+    
+	public ChessGameModel(int gameType) {
 
         chessBoard = new ChessBoard();
         movesList = new ArrayList<Move>(64);
@@ -48,7 +55,6 @@ public class ChessGameModel implements ChessGameModelInterface {
         blackPieces = new ArrayList<Piece>(16);
         capturedWhitePieces = new ArrayList<Piece>(16);
         capturedBlackPieces = new ArrayList<Piece>(16);
-      
         turn = white;
         whiteCheck = false;
         blackCheck = false;
@@ -58,6 +64,18 @@ public class ChessGameModel implements ChessGameModelInterface {
         whiteKingsideRookMoved = false;
         blackQueensideRookMoved = false;
         blackKingsideRookMoved = false;
+        halfMoveClock = 1;
+        lastPawnMove = 0;
+        lastPieceCaptured = 0;
+        
+        if (gameType == onePlayerGame) {
+        	whitePlayerType = human;
+        	blackPlayerType = computer;
+        }
+        else {
+        	whitePlayerType = human;
+        	blackPlayerType = human;
+        }
         
         // Add the pieces to the chess board
         Piece piece = new Rook(white);
@@ -147,11 +165,15 @@ public class ChessGameModel implements ChessGameModelInterface {
 		// Make the move
 		capturedPiece = chessBoard.doMove(move);
 		chessBoard.generateFen();
-		updateGameState(move);
+		updatePerMoveGameState(move);
 		movesList.add(move);
 		
 		// If a piece was captured move it to a different list
 		if (capturedPiece != null) {
+
+			// Needed to enforce 50 move rule
+			lastPieceCaptured = halfMoveClock;
+
 			if (turn == white) {
 				blackPieces.remove(capturedPiece);
 				capturedBlackPieces.add(capturedPiece);
@@ -176,8 +198,28 @@ public class ChessGameModel implements ChessGameModelInterface {
         		System.out.println("Stalemate! The game is a draw.");
     		}
     	}	
+    	else {
+    		
+    		// Even if the player does have legal moves the game could still be over from
+    		// - The 50 move rule
+    		// - Threefold repetition 
+
+    		// Check for 50 move rule
+            if (halfMoveClock - lastPawnMove >= 100 && halfMoveClock - lastPieceCaptured >= 100) {
+    			notifyStalemateObservers();
+        		System.out.println("Stalemate by 50 move rule.");
+            }
+                    
+    		// FIXME: Check for 3-fold repitition
+                // make data structure with: FEN, en-passant
+                // Position is same
+                // En-passant rights are same
+                // Castling is same
+    	}
 		
+
     	// Advance the turn to the next player
+		halfMoveClock++;
     	turn = (turn == white) ? black : white;
     	
     	return true;
@@ -255,11 +297,11 @@ public class ChessGameModel implements ChessGameModelInterface {
     }
     
     public void setWhitePlayerType(int type) {
-    	whitePlayer = (type == computer) ? computer : human;
+    	whitePlayerType = (type == computer) ? computer : human;
     }
     
     public void setBlackPlayerType(int type) {
-    	blackPlayer = (type == computer) ? computer : human;
+    	blackPlayerType = (type == computer) ? computer : human;
     }
     
     public Piece getPieceAt(int file, int rank) {
@@ -611,7 +653,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	return false;
     }
     
-    private void updateGameState(Move move) {
+    private void updatePerMoveGameState(Move move) {
     	
 		int colorOfMover = move.pieceMoved.getColor();
 		int colorOfOpponent = (colorOfMover == white) ? black : white;
@@ -645,12 +687,14 @@ public class ChessGameModel implements ChessGameModelInterface {
     		if (typeOfPieceMoved == king) {
     			
     			whiteKingMoved = true;
-    			
+    		
+                // White castled queenside
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 0 &&
     			    fileOfDestination == 2 && rankOfDestination == 0) {
     				whiteQueensideRookMoved = true;
     			}
-    			
+    		
+                // White castled kingside
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 0 &&
     				fileOfDestination == 6 && rankOfDestination == 0) {
     				whiteKingsideRookMoved = true;
@@ -668,12 +712,14 @@ public class ChessGameModel implements ChessGameModelInterface {
 
     		if (typeOfPieceMoved == king) {
     			blackKingMoved = true;
-    			
+    		
+                // Black castled queenside    
     			if (fileOfPieceMoved == 4 && rankOfPieceMoved == 7 &&
         			fileOfDestination == 2 && rankOfDestination == 7) {
     				blackQueensideRookMoved = true;
         		}
-        			
+        		
+                // Black castled kingside    
         		if (fileOfPieceMoved == 4 && rankOfPieceMoved == 7 &&
         			fileOfDestination == 6 && rankOfDestination == 7) {
         			blackKingsideRookMoved = true;
@@ -686,6 +732,11 @@ public class ChessGameModel implements ChessGameModelInterface {
 				if (fileOfPieceMoved == 7 && rankOfPieceMoved == 7)
 					blackKingsideRookMoved = true;
     		}
+		}
+	
+		// Needed to enforce 50 move rule
+		if (typeOfPieceMoved == pawn) {
+			lastPawnMove = halfMoveClock;
 		}
     }
     

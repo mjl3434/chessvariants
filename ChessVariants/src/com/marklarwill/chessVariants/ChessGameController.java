@@ -29,7 +29,7 @@ public class ChessGameController implements ControllerInterface {
 	
 	public ChessGameModelInterface createTwoPlayerChessGame() {
 		
-		chessGameModel = new ChessGameModel();
+		chessGameModel = new ChessGameModel(chessGameModel.twoPlayerGame);
 		chessGameView = new ChessGameView(chessGameModel, chessVariantsView, this);
 		
 		// The view is interested in knowing these things from the model
@@ -45,7 +45,7 @@ public class ChessGameController implements ControllerInterface {
 	
 	public ChessGameModelInterface createOnePlayerChessGame() {
 		
-		chessGameModel = new ChessGameModel();
+		chessGameModel = new ChessGameModel(chessGameModel.onePlayerGame);
 		chessGameView = new ChessGameView(chessGameModel, chessVariantsView, this);
 		
 		// The view is interested in knowing these things from the model
