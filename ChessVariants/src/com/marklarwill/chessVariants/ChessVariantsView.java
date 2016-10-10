@@ -30,10 +30,15 @@ public class ChessVariantsView {
 	JLayeredPane layeredPane = new JLayeredPane();
 	
 	public ChessVariantsView(ControllerInterface controller) {
+
+		System.out.println("ChessVariantsView()");
+
 		chessGameController = controller;
 	}
 
 	 public void createView() {
+		 
+		 System.out.println("createView()");
 
 		/* Schedule UI updates for the Event Dispatch Thread */
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -44,6 +49,8 @@ public class ChessVariantsView {
 	 }
 	 
 	private void createAndShowGUI()	{
+
+		 System.out.println("createAndShowGUI()");
 		
 		// Create the object which all other objects go inside of
 		frame = new JFrame();
@@ -58,6 +65,8 @@ public class ChessVariantsView {
 	}
 	
 	private void addComponentsToPane(Container pane) {
+		
+		System.out.println("addComponentsToPane");
 		
 		// Create an empty Menu Bar
 		JMenuBar menubar = new JMenuBar();
@@ -139,14 +148,18 @@ public class ChessVariantsView {
 	}
 
 	private void saveGame() {
+		System.out.println("saveGame()");
 		System.out.println("User requested save game (not yet implemented)");
 	}
 	
 	private void loadGame() {
+		System.out.println("loadGame()");
 		System.out.println("User requested load game (not yet implemented)");
 	}
 	
 	private void startNewOnePlayerChessGame() {
+
+		System.out.println("startNewOnePlayerChessGame()");
 		
 		System.out.println("One player games are not implmented yet. AI is required.");
 		
@@ -154,6 +167,8 @@ public class ChessVariantsView {
 	}
 	
 	private void startNewTwoPlayerChessGame() {
+		
+		System.out.println("startNewTwoPlayerChessGame()");
 		
 		System.out.println("User requested two player chess game");
 		

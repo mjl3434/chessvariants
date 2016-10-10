@@ -48,6 +48,8 @@ public class ChessGameModel implements ChessGameModelInterface {
     private int lastPieceCaptured;
     
 	public ChessGameModel(int gameType) {
+		
+		System.out.println("ChessGameModel()");
 
         chessBoard = new ChessBoard();
         movesList = new ArrayList<Move>(64);
@@ -144,6 +146,8 @@ public class ChessGameModel implements ChessGameModelInterface {
 	@Override
     public boolean makeMove(PlayerInput input) {
     	
+		System.out.println("makeMove()");
+
 		Move move = null;
 		Piece capturedPiece = null;
 		int nextPlayer = (turn == white) ? black : white;
@@ -227,6 +231,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 
 	@Override
 	public List<Piece> getPieceLocations() {
+		System.out.println("getPieceLocations()");
     	List<Piece> allPieces = new ArrayList<Piece>(whitePieces);
     	allPieces.addAll(blackPieces);
     	return allPieces;
@@ -234,54 +239,64 @@ public class ChessGameModel implements ChessGameModelInterface {
 
 	@Override
 	public void registerObserver(PieceLocationsObserver o) {
+		System.out.println("registerObserver(PieceLocationsObserver)");
 		pieceLocationsObservers.add(o);
 	}
 
 	@Override
 	public void removeObserver(PieceLocationsObserver o) {
+		System.out.println("removeObserver(PieceLocationsObserver)");
 		pieceLocationsObservers.remove(o);
 		
 	}
 
 	@Override
 	public void registerObserver(CheckmateObserver o) {
+		System.out.println("registerObserver(CheckmateObserver)");
 		checkmateObservers.add(o);
 	}
 
 	@Override
 	public void removeObserver(CheckmateObserver o) {
+		System.out.println("removeObserver(CheckmateObserver)");
 		checkmateObservers.remove(o);
 	}
 
 	@Override
 	public void registerObserver(StalemateObserver o) {
+		System.out.println("registerObserver(StalemateObserver)");
 		stalemateObservers.add(o);
 	}
 
 	@Override
 	public void removeObserver(StalemateObserver o) {
+		System.out.println("removeObserver(StalemateObserver)");
 		stalemateObservers.remove(o);
 	}
 	
 	public void notifyPieceLocationsObservers() {
+		System.out.println("notifyPieceLocationsObservers()");
 		for (PieceLocationsObserver o : pieceLocationsObservers) {
 			o.updatePieceLocations();
 		}
 	}
 	
 	public void notifyCheckmateObservers() {
+		System.out.println("notifyCheckmateObservers()");
 		for (CheckmateObserver o : checkmateObservers) {
 			o.updateCheckmate();
 		}
 	}
 
 	public void notifyStalemateObservers() {
+		System.out.println("notifyStalemateObservers()");
 		for (StalemateObserver o : stalemateObservers) {
 			o.updateStalemate();
 		}
 	}
 	
 	public boolean getCheck(int player) {
+		System.out.println("getCheck()");
 		if (player == white)
 			return whiteCheck;
 		else
@@ -289,42 +304,52 @@ public class ChessGameModel implements ChessGameModelInterface {
 	}
 	
     public boolean getWhiteCheck() {
+    	System.out.println("getWhiteCheck()");
     	return whiteCheck;
     }
 
     public boolean getBlackCheck() {
+    	System.out.println("getBlackCheck()");
     	return blackCheck;
     }
     
     public void setWhitePlayerType(int type) {
+    	System.out.println("setWhitePlayerType()");
     	whitePlayerType = (type == computer) ? computer : human;
     }
     
     public void setBlackPlayerType(int type) {
+    	System.out.println("setBlackPlayerType()");
     	blackPlayerType = (type == computer) ? computer : human;
     }
     
     public Piece getPieceAt(int file, int rank) {
+    	System.out.println("getPieceAt()");
     	return chessBoard.getPieceAt(file, rank);
     }
 
     public Square getSquareAt(int file, int rank) {
+    	System.out.println("getSquareAt()");
     	return chessBoard.getSquareAt(file, rank);
     }
     
     public ChessBoard getChessBoard() {
+    	System.out.println("getChessBoard()");
     	return chessBoard;
     }
     
     public List<Move> getMovesList() {
+    	System.out.println("getMovesList()");
     	return movesList;
     }
     
 	public void getComputerMove() {
+    	System.out.println("getComputerMove()");
 		// TODO Auto-generated method stub
 	}
     
     public boolean playerHasLegalMove(int player) {
+    	System.out.println("playerHasLegalMove()");
     	
 		boolean legalMove = false;
     	
@@ -382,6 +407,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     
     private boolean playerInputIsValid(PlayerInput pi) {
     	
+    	System.out.println("playerInputIsValid()");
     	int moverColor = turn;
     	int opponentColor = (moverColor == white) ? black : white;
     	Piece pieceMoved = chessBoard.getPieceAt(pi.getSrcFile(), pi.getSrcRank());
@@ -423,6 +449,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     private boolean kingInCheckAfterMove(Piece pieceMoved, Piece pieceCaptured, 
     									 Square sourceSquare, Square destinationSquare, 
     									 int moverColor, int opponentColor) {
+    	System.out.println("kingInCheckAfterMove()");
     	boolean kingInCheck = false;
 		Move move = new Move(pieceMoved, sourceSquare, pieceCaptured, destinationSquare);
     	
@@ -444,6 +471,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     
     private boolean squareIsUnderAttackBy(Square square, int attackerColor) {
     	
+    	System.out.println("squareIsUnderAttackBy()");
     	int rank = square.getRank();
     	int file = square.getFile();
     	Piece piece;
@@ -635,6 +663,11 @@ public class ChessGameModel implements ChessGameModelInterface {
     	}
     	
     	// check for king attacks
+    	// FIXME: A king can't legally attack so is this check necessary?
+    	// If when we already checked to see if it's a legal move we checked 
+    	// to see if the king put himself under attack then this check is not
+    	// required. In fact it *SHOULD NOT* be required cuz that logic is 
+    	// in fact correct for making sure the king made a legal move
     	
     	// Cover a 3x3 square around our coordinate
     	for (int x = file-1; x <= file+1; x++) {		
@@ -655,6 +688,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     
     private void updatePerMoveGameState(Move move) {
     	
+    	System.out.println("updatePerMoveGameState()");
 		int colorOfMover = move.pieceMoved.getColor();
 		int colorOfOpponent = (colorOfMover == white) ? black : white;
 		int typeOfPieceMoved = move.pieceMoved.getType();
@@ -747,22 +781,27 @@ public class ChessGameModel implements ChessGameModelInterface {
     	protected Square square;
     	
     	Piece(int color) {
+    		//System.out.println("Piece()");
     		this.color = color;
     	}
     	
     	public int getType() {
+    		//System.out.println("getType()");
     		return type;
     	}
     	
     	public int getColor() {
+    		//System.out.println("getColor()");
     		return color;
     	}
     	
     	public void setSquare(Square square) {
+    		//System.out.println("setSquare()");
     		this.square = square;
     	}
 
     	public Square getSquare() {
+    		//System.out.println("getSqure()");
     		return square;
     	}
     	
@@ -789,7 +828,8 @@ public class ChessGameModel implements ChessGameModelInterface {
 
     	@Override
 		public List<Move> getPossibleMoves() {
-    		
+    	
+    		System.out.println("getPossibleMoves()");
     		List<Move> moves = new ArrayList<Move>();
     		int file = square.getFile();
     		int rank = square.getRank();
@@ -830,6 +870,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public boolean isValidMovementForPiece(Square source, Square destination,
     			ChessGameModel chessGame) {
     		
+    		System.out.println("isValidMovementForPiece()");
     		int srcFile = source.getFile();
     		int srcRank = source.getRank();
     		int dstFile = destination.getFile();
@@ -865,10 +906,12 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public Queen(int color) {
     		super(color);
     		type = ChessGameModel.queen;
+    		System.out.println("Queen()");
     	}
 
     	@Override
 		public List<Move> getPossibleMoves() {
+    		System.out.println("getPossibleMoves()");
     		
     		List<Move> moves = new ArrayList<Move>();
     		moves.addAll(getRookLikeMoves(this));
@@ -880,6 +923,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public boolean isValidMovementForPiece(Square source, Square destination,
     			ChessGameModel chessGame) {
     		
+    		System.out.println("isValidMovementForPiece()");
     		if (isValidMovmentForBishop(source, destination, chessGame) ||
     		    isValidMovmentForRook(source, destination, chessGame))
     			return true;
@@ -894,10 +938,12 @@ public class ChessGameModel implements ChessGameModelInterface {
     	Rook(int color) {
     		super(color);
     		type = ChessGameModel.rook;
+    		System.out.println("Rook()");
     	}
 
     	@Override
 		public List<Move> getPossibleMoves() {
+    		System.out.println("getPossibleMoves()");
     		List<Move> moves = new ArrayList<Move>();
     		moves.addAll(getRookLikeMoves(this));
     		return moves;
@@ -907,6 +953,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public boolean isValidMovementForPiece(Square source, Square destination,
     			ChessGameModel chessGame) {
     		
+    		System.out.println("isValidMovementForPiece()");
     		if (isValidMovmentForRook(source, destination, chessGame))
     			return true;
     		
@@ -920,10 +967,12 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public Knight(int color) {
     		super(color);
     		type = ChessGameModel.knight;
+    		System.out.println("Knight()");
     	}
 
     	@Override
 		public List<Move> getPossibleMoves() {
+    		System.out.println("getPossibleMoves()");
     		
     		List<Move> moves = new ArrayList<Move>();	
     		int file = square.getFile();
@@ -992,6 +1041,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public boolean isValidMovementForPiece(Square source, Square destination,
     									       ChessGameModel chessGame) {
 
+    		System.out.println("isValidMovementForPiece()");
     		int srcFile = source.getFile();
     		int srcRank = source.getRank();
     		int dstFile = destination.getFile();
@@ -1011,10 +1061,12 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public Bishop(int color) {
     		super(color);
     		type = ChessGameModel.bishop;
+    		System.out.println("Bishop()");
     	}
 
     	@Override
 		public List<Move> getPossibleMoves() {
+    		System.out.println("getPossibleMoves()");
     		List<Move> moves = new ArrayList<Move>();
     		moves.addAll(getBishopLikeMoves(this));
     		return moves;
@@ -1024,6 +1076,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	public boolean isValidMovementForPiece(Square source, Square destination,
     			ChessGameModel chessGame) {
 
+    		System.out.println("isValidMovementForPiece()");
     		if (isValidMovmentForBishop(source, destination, chessGame))
     			return true;
     		
@@ -1037,11 +1090,13 @@ public class ChessGameModel implements ChessGameModelInterface {
     	Pawn(int color) {
     		super(color);
     		type = ChessGameModel.pawn;
+    		System.out.println("Pawn()");
     	}
 
     	@Override
 		public List<Move> getPossibleMoves() {
     		
+    		System.out.println("getPossibleMoves()");
     		List<Move> moves = new ArrayList<Move>();
     		Move previousMove = null;
     		int file = square.getFile();
@@ -1095,6 +1150,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     	
     	@Override
     	public boolean isValidMovementForPiece(Square source, Square destination, ChessGameModel chessGame) {
+    		System.out.println("isValidMovementForPiece()");
     		
     		int srcFile = source.getFile();
     		int srcRank = source.getRank();
@@ -1178,6 +1234,7 @@ public class ChessGameModel implements ChessGameModelInterface {
     
 	private boolean isValidMovmentForBishop(Square source, Square destination,
 			ChessGameModel chessGame) {
+		System.out.println("isValidMovementForBishop()");
 		int srcRank = source.getRank();
 		int srcFile = source.getFile();
 		int dstRank = destination.getRank();
@@ -1221,6 +1278,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	private boolean isValidMovmentForRook(Square source, Square destination,
 			ChessGameModel chessGame) {
 
+		System.out.println("isValidMovementForRook()");
 		int srcRank = source.getRank();
 		int srcFile = source.getFile();
 		int dstRank = destination.getRank();
@@ -1274,6 +1332,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private boolean previousMoveEnablesEnPassantFor(Pawn p) {
 		
+		System.out.println("previousMoveEnablesEnPassantFor()");
 		int opponentColor, opponentStartingRank, opponentRankPlusTwo;
 		int srcRank = p.getSquare().getRank();
 		int srcFile = p.getSquare().getFile();
@@ -1314,6 +1373,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	}
 	
 	private boolean inBounds(int x, int y) {
+		System.out.println("inBounds()");
 		if (x >= 0 && x <= 7 && y >= 0 && y <= 7)
 			return true;
 		return false;
@@ -1321,6 +1381,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private Deque<Move> getRookLikeMoves(Piece rook) {
 		
+		System.out.println("getRookLikeMoves()");
 		Deque<Move> moves = new ArrayDeque<Move>(14);
 		int file = rook.square.getFile();
 		int rank = rook.square.getRank();
@@ -1383,6 +1444,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private Deque<Move> getBishopLikeMoves(Piece bishop) {
 		
+		System.out.println("getBishopLikeMoves()");
 		Deque<Move> moves = new ArrayDeque<Move>(13);
 		int file = bishop.square.getFile();
 		int rank = bishop.square.getRank();
@@ -1444,6 +1506,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private boolean kingsideCastleIsLegal(int playerColor) {
 		
+		System.out.println("kingsideCastleIsLegal()");
 		// FIXME: / Note:
 		// This code relies on "whiteCheck" and "blackCheck" game state variables, this is an optimization
 		// that takes advantage of the fact that whether or not a king is in check, is calculated after
@@ -1480,6 +1543,7 @@ public class ChessGameModel implements ChessGameModelInterface {
 	
 	private boolean queensideCastleIsLegal(int playerColor) {
 		
+		System.out.println("queensideCastleIsLegal()");
 		// FIXME: / Note:
 		// This code relies on "whiteCheck" and "blackCheck" game state variables, this is an optimization
 		// that takes advantage of the fact that whether or not a king is in check, is calculated after
